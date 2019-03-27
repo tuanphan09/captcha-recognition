@@ -11,7 +11,7 @@ label_classes = len(characters)+1
 cp_save_path = './models/weights.{epoch:02d}-{loss:.3f}-{val_loss:.3f}.hdf5' 
 
 # save model for predicting
-base_model_path = './models/weights_for_predict_50.hdf5'  
+base_model_path = './models/weights_for_predict.hdf5'  
 
 # TensorBoard save path
 tb_log_dir = './tensorboard'  
@@ -22,6 +22,6 @@ learning_rate = 0.01
 img_dir = './data/captcha'
 description_path = './data/captcha.csv'
 
-N_EPOCHS = 50
+N_EPOCHS = 2
 BATCH_SIZE = 32
 downsample_factor = 4

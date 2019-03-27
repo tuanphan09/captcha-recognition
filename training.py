@@ -15,7 +15,7 @@ from keras.preprocessing.image import ImageDataGenerator
 
 from config import *
 from model import create_model
-from data_gen import CapchaDataGenerator
+from data_generator import CapchaDataGenerator
 
 # os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
@@ -31,7 +31,7 @@ def get_data(description):
     return list_files, list_labels
 
 list_files, list_labels = get_data(description_path)
-X_train, X_val, y_train, y_val = train_test_split(list_files, list_labels, test_size=0.1, random_state=9)
+X_train, X_val, y_train, y_val = train_test_split(list_files, list_labels, test_size=0.2, random_state=9)
 
 N_TRAIN_SAMPLES = len(X_train)
 N_TEST_SAMPLES = len(X_val)
@@ -64,7 +64,7 @@ optimizer = SGD(lr=learning_rate, decay=1e-6, momentum=0.8, nesterov=True, clipn
 
 model.compile(loss={'ctc': lambda y_true, y_pred: y_pred}, optimizer=optimizer)
 model.summary()  # print a summary representation of your model.
-# plot_model(model, to_file='CRNN-CTC-loss.png', show_shapes=True)  # save a image which is the architecture of the model 
+plot_model(model, to_file='CRNN-CTC-loss.png', show_shapes=True)  # save a image which is the architecture of the model 
 
 checkpoint = ModelCheckpoint(cp_save_path, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
 tensorboard = TensorBoard(log_dir=tb_log_dir, write_graph=True, write_images=True)

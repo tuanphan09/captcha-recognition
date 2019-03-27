@@ -17,7 +17,7 @@ from keras.callbacks import TensorBoard
 
 from config import *
 from model import create_model
-from data_gen import CapchaDataGenerator
+from data_generator import CapchaDataGenerator
 
 # os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
@@ -85,12 +85,12 @@ print("Done loaded model!")
 
 y_pred = base_model.predict_generator(testing_generator, max_queue_size=20, verbose=1)
 print(y_pred.shape)
+
 cnt = 0
 f = open("wrong_prediction.csv", "w")
 f.write("ImageId,Label,Predict\n")
 beam = 0
 greedy = 0
-# print(y_pred[0])
 for i in range(len(y_pred)):
 #     if i % 1000 == 0:
 #         print(int(100.0*i/len(y_pred)))
