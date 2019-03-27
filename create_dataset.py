@@ -64,4 +64,4 @@ def create_data(gen_dir, nb_sample, nb_jobs=16):
     p = Pool(nb_jobs)
     p.map(gen_captcha, data)
 
-create_data("./data/captcha", 15, nb_jobs=16)
+create_data("./data/captcha", 500000, nb_jobs=16)

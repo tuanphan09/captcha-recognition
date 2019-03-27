@@ -22,6 +22,6 @@ learning_rate = 0.01
 img_dir = './data/captcha'
 description_path = './data/captcha.csv'
 
-N_EPOCHS = 2
+N_EPOCHS = 30
 BATCH_SIZE = 32
 downsample_factor = 4
