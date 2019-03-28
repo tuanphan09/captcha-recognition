@@ -20,8 +20,8 @@ def ctc_lambda_func(args):
 
 def create_model(is_training=True):
     inputShape = Input((width, height, 1)) 
-    conv_1 = Conv2D(64, (3, 3), activation='relu', padding='same')(inputShape)
-    conv_2 = Conv2D(64, (3, 3), activation='relu', padding='same')(conv_1)
+    conv_1 = Conv2D(64, (5, 5), activation='relu', padding='same')(inputShape)
+    conv_2 = Conv2D(64, (5, 5), activation='relu', padding='same')(conv_1)
     batchnorm_2 = BatchNormalization()(conv_2)
     pool_2 = MaxPooling2D(pool_size=(2, 2))(batchnorm_2)
 
@@ -46,15 +46,19 @@ def create_model(is_training=True):
     print(x_reshape.get_shape()) 
     print(fc_1.get_shape())  
 
-    rnn_1 = LSTM(128, kernel_initializer="he_normal", return_sequences=True)(fc_1)
-    rnn_1b = LSTM(128, kernel_initializer="he_normal", go_backwards=True, return_sequences=True)(fc_1)
-    rnn1_merged = add([rnn_1, rnn_1b])
+    # rnn_1 = LSTM(128, kernel_initializer="he_normal", return_sequences=True)(fc_1)
+    # rnn_1b = LSTM(128, kernel_initializer="he_normal", go_backwards=True, return_sequences=True)(fc_1)
+    # rnn1_merged = add([rnn_1, rnn_1b])
+    # rnn_2 = LSTM(128, kernel_initializer="he_normal", return_sequences=True)(rnn1_merged)
+    # rnn_2b = LSTM(128, kernel_initializer="he_normal", go_backwards=True, return_sequences=True)(rnn1_merged)
+    # rnn2_merged = concatenate([rnn_2, rnn_2b])
 
-    rnn_2 = LSTM(128, kernel_initializer="he_normal", return_sequences=True)(rnn1_merged)
-    rnn_2b = LSTM(128, kernel_initializer="he_normal", go_backwards=True, return_sequences=True)(rnn1_merged)
-    rnn2_merged = concatenate([rnn_2, rnn_2b])
+    bi_LSTM_1 = Bidirectional(LSTM(128, return_sequences=True, kernel_initializer='he_normal'), merge_mode='sum')(fc_1)
+    bi_LSTM_2 = Bidirectional(LSTM(128, return_sequences=True, kernel_initializer='he_normal'), merge_mode='concat')(bi_LSTM_1)
 
-    drop_rnn = Dropout(0.3)(rnn2_merged)
+    
+
+    drop_rnn = Dropout(0.3)(bi_LSTM_2)
 
     fc_2 = Dense(label_classes, kernel_initializer='he_normal', activation='softmax')(drop_rnn)
 

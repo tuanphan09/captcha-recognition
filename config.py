@@ -23,5 +23,5 @@ img_dir = './data/captcha'
 description_path = './data/captcha.csv'
 
 N_EPOCHS = 30
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 downsample_factor = 4
