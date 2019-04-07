@@ -43,5 +43,5 @@ def gen(gen_dir, nb_sample, fonts, font_sizes):
     f.close()
 
 gen("./data/train", 150000, FONTS[:-2], FONT_SIZES[:-2])
-gen("./data/testing", 100000, FONTS, FONT_SIZES)
 gen("./data/public_test", 50000, FONTS[:-2], FONT_SIZES[:-1])
+gen("./data/testing", 100000, FONTS, FONT_SIZES)

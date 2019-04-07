@@ -18,11 +18,12 @@ from config import *
 from model import *
 from data_gen import CapchaDataGenerator
 
-# config = tf.ConfigProto()
-# config.gpu_options.allow_growth = True
-# set_session(tf.Session(config=config))
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+set_session(tf.Session(config=config))
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+# using GPU-1 if server have multi-GPUs
+# os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 list_files = [] 
 list_labels = []
@@ -35,16 +36,11 @@ for i, line in enumerate(f):
 
 X_train, X_val, y_train, y_val = train_test_split(list_files, list_labels, test_size=0.1, random_state=9)
 
-# X_train += X_val[:7000]
-# y_train += y_val[:7000]
-
-# X_val = X_val[7000:]
-# y_val = y_val[7000:]
 
 N_TRAIN_SAMPLES = len(X_train)
 N_TEST_SAMPLES = len(X_val)
 
-
+# data augumentation
 datagen = ImageDataGenerator(
         featurewise_center=False,  # set input mean to 0 over the dataset
         samplewise_center=False,  # set each sample mean to 0
@@ -62,7 +58,7 @@ datagen = ImageDataGenerator(
 training_generator = CapchaDataGenerator(X_train, y_train, batch_size=BATCH_SIZE, datagen=datagen, is_testing=False)
 validation_generator = CapchaDataGenerator(X_val, y_val, batch_size=BATCH_SIZE, is_testing=False)
 
-# model, base_model = CRNN_STN_model(is_training=True)
+# model, base_model = CRNN_v1_model(is_training=True)
 model, base_model = CRNN_model(is_training=True)
 
 # clipnorm seems to speeds up convergence
@@ -70,7 +66,8 @@ optimizer = SGD(lr=learning_rate, decay=1e-6, momentum=0.8, nesterov=True, clipn
 # optimizer = RMSprop(lr=learning_rate, rho=0.9, epsilon=1e-08, decay=0.0)
 
 model.compile(loss={'ctc': lambda y_true, y_pred: y_pred}, optimizer=optimizer)
-model.summary()  # print a summary representation of your model.
+# print a summary representation of your model.
+model.summary()  
 # plot_model(model, to_file='CRNN-CTC-loss.png', show_shapes=True)  # save a image which is the architecture of the model 
 
 checkpoint = ModelCheckpoint(cp_save_path, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
@@ -83,7 +80,6 @@ tensorboard = TensorBoard(log_dir=tb_log_dir, write_graph=True, write_images=Tru
 if load_model_path != '':
     model.load_weights(load_model_path)
 
-#try your own fit_generator() settings, you may get a better result
 if is_training:
     model.fit_generator(
         training_generator,

@@ -67,6 +67,8 @@ def decode_label_beam(data, top=10):
         return max(final_result.items(), key=operator.itemgetter(1))[0]
 
 
+
+# load data
 list_files = [] 
 list_labels = []
 f = open(description_path, "r")
@@ -78,20 +80,22 @@ for i, line in enumerate(f):
 
 testing_generator = CapchaDataGenerator(list_files, list_labels, batch_size=BATCH_SIZE, is_testing=True)
 
+# load model
 base_model = CRNN_model(is_training=False)
 base_model.load_weights(base_model_path)
 print("Done loaded model!")
 
+# predict
 y_pred = base_model.predict_generator(testing_generator, max_queue_size=20, verbose=1)
 print(y_pred.shape)
 
-
+# decode
 start = time.time()
-
 p = Pool(40)
 label_pred_greedy = p.map(decode_label_greedy, y_pred[:, 2:])
 label_pred_beam = p.map(decode_label_beam, y_pred[:, 2:])
 
+# estimation
 end = time.time()
 print("Time:", end-start)
 beam = 0
@@ -110,51 +114,3 @@ for i in range(len(y_pred)):
 print("Greed {}, beam {}".format(greedy, beam))
 print("ACC greedy: ", 1.0*greedy/len(y_pred))
 print("ACC beam: ", 1.0*beam/len(y_pred))
-
-
-
-
-
-
-
-exit()
-cnt = 0
-f = open("wrong_prediction.csv", "w")
-f.write("ImageId,Label,Predict\n")
-beam = 0
-greedy = 0
-for i in range(len(y_pred)):
-    if i % 1000 == 0:
-        print(int(100.0*i/len(y_pred)))
-    pred_label_greedy = decode_label_greedy(y_pred[i, 2:])
-    pred_label = decode_label_beam(y_pred[i, 2:])
-    if pred_label_greedy != pred_label:
-        if pred_label == list_labels[i]:
-            beam += 1
-        if pred_label_greedy == list_labels[i]:
-            greedy += 1
-#     pred_label = decode_label_greedy(y_pred[i, 2:])
-    if pred_label == list_labels[i]:
-        cnt += 1
-    else:
-        f.write("{},{},{}\n".format(list_files[i], list_labels[i], pred_label))
-print("Greed {}, beam {}".format(greedy, beam))
-print("ACC: ", 1.0*cnt/len(y_pred))
-
-
-exit()
-out = np.array(y_pred[:, 2:], dtype=np.float32)
-# result = K.get_value(K.ctc_decode(out, input_length=np.ones(out.shape[0])*out.shape[1],
-#                          greedy=True)[0][0])
-result = K.get_value(K.ctc_decode(out, input_length=np.ones(out.shape[0])*out.shape[1],
-                         greedy=False,beam_width=10,top_paths=1)[0][0])
-def labels_to_text(labels):
-        return ''.join(list(map(lambda x: characters[int(x)], labels)))
-
-cnt = 0
-for i in range(len(result)):
-        label = labels_to_text(result[i])
-        if label == list_labels[i]:
-                cnt += 1
-print("ACC: ", 1.0*cnt/len(y_pred))               
-        
