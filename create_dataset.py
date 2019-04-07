@@ -1,67 +1,47 @@
 import os
 import random
-from multiprocessing import Pool
 from captcha.image import ImageCaptcha
 import binascii
-import time
-start = time.time()
 
 FONTS = [
-"./fonts/Aller_Rg.ttf",
-"./fonts/Lato-Bold.ttf",
-"./fonts/Lato-Heavy.ttf",
-"./fonts/Lato-Medium.ttf",
-"./fonts/Lato-Semibold.ttf",
-"./fonts/OpenSans-Bold.ttf",
-"./fonts/OpenSans-Semibold.ttf",
-"./fonts/Oswald-DemiBold.ttf",
-"./fonts/Oswald-Light.ttf",
-"./fonts/Oswald-Regular.ttf",
-"./fonts/RobotoCondensed-Bold.ttf",
-"./fonts/RobotoCondensed-Regular.ttf",
-"./fonts/Roboto-Regular.ttf",
+    "./fonts/DroidSans.ttf",
+    "./fonts/Sansation-Light.ttf",
+    "./fonts/Sansation-Regular.ttf",
+    "./fonts/SourceSansPro-Light.otf",
+    "./fonts/SourceSansPro-Regular.otf",
+    "./fonts/Titillium-Light.otf",
+    "./fonts/Titillium-Regular.otf",
+
+    "./fonts/AlexBrush-Regular.ttf",
+    "./fonts/cac_champagne.ttf",
+    "./fonts/DancingScript-Regular.otf",
+    "./fonts/GrandHotel-Regular.otf",
+    "./fonts/Allura-Regular.otf",
+    "./fonts/GreatVibes-Regular.otf",
 ]
-FONT_SIZES = [31, 32, 33, 34, 35, 36]
-CHAR_SETS = '0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM'
+FONT_SIZES = [43, 42, 41, 40, 39, 38, 37, 36]
+CHAR_SETS = '0123456789qwertyuiopasdfghjklzxcvbnm'
     
-MAX_CHAR_NUM = 7
-MIN_CHAR_NUM = 5
-IMAGE_WIDTH = 150
-IMAGE_HEIGHT = 35
-
-image = ImageCaptcha(width=IMAGE_WIDTH, height=IMAGE_HEIGHT,font_sizes=FONT_SIZES, fonts=FONTS)
-
-def test_font(fonts):
-    try:
-        img = ImageCaptcha(width=100, height=50,font_sizes=[40], fonts=[fonts])
-        img.write("1234", './test.png')
-        return True
-    except:
-        return False 
-
-def gen_captcha(data):
-    fpath, label = data
-    image.write(label, fpath) 
-
-def create_data(gen_dir, nb_sample, nb_jobs=16):
+CHAR_NUM = 6
+IMAGE_WIDTH = 120
+IMAGE_HEIGHT = 50
+def gen(gen_dir, nb_sample, fonts, font_sizes):
     if not os.path.exists(gen_dir):
         os.makedirs(gen_dir)
-    
-    data = []
-    f = open("./data/captcha.csv", "w")
+    image = ImageCaptcha(width=IMAGE_WIDTH, height=IMAGE_HEIGHT,font_sizes=font_sizes, fonts=fonts)
+    f = open(gen_dir + ".csv", "w")
     f.write("ImageId,Label\n")
     for i in range(nb_sample):
         label = ''
-        char_num = random.randint(MIN_CHAR_NUM, MAX_CHAR_NUM)
-        for j in range(char_num):
+        for j in range(CHAR_NUM):
             label += random.choice(CHAR_SETS)
         fname = binascii.hexlify(os.urandom(16)).decode('ascii') + '.png'
-        data.append((os.path.join(gen_dir, fname), label))
-
+        image.write(label, os.path.join(gen_dir, fname)) 
         f.write("{},{}\n".format(fname, label))
+        if i % 1000 == 0:
+            print(str(int(1.0*i/nb_sample*100))+ "%")
     f.close()
 
-    p = Pool(nb_jobs)
-    p.map(gen_captcha, data)
-
-create_data("./data/captcha", 500, nb_jobs=16)
+gen("./data/train", 150000, FONTS[:-2], FONT_SIZES[:-2])
+gen("./data/testing", 100000, FONTS, FONT_SIZES)
+gen("./data/public_test", 50000, FONTS[:-2], FONT_SIZES[:-1])

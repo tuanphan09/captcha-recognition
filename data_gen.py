@@ -7,10 +7,8 @@ from config import *
 def labels_to_text(labels):    
     return ""
 
-def text_to_labels(text): 
-    #padding     
-    # index of 'blank' is label_classes - 1
-    return [characters.find(c) for c in text] + [label_classes - 1] * (max_label_len-len(text))
+def text_to_labels(text):     
+    return [characters.find(c) for c in text]
 
 class CapchaDataGenerator(keras.utils.Sequence):
     'Generates data for Keras'
@@ -40,10 +38,10 @@ class CapchaDataGenerator(keras.utils.Sequence):
         list_labels_batch = [self.list_labels[k] for k in indexes]
 
         # Generate data
-        X, y, y_len = self.__data_generation(list_files_batch, list_labels_batch)
+        X, y = self.__data_generation(list_files_batch, list_labels_batch)
         if self.is_testing:
             return X, y
-        return [X, y, np.ones(self.batch_size) * int(width / downsample_factor - 2), y_len], y
+        return [X, y, np.ones(self.batch_size) * int(width / downsample_factor - 2), np.ones(self.batch_size) * label_len], y
 
     def on_epoch_end(self):
         'Updates indexes after each epoch'
@@ -56,12 +54,11 @@ class CapchaDataGenerator(keras.utils.Sequence):
         
         X = []
         y = []
-        y_len = []
         for i in range(len(list_files_batch)):
             img = cv2.imread(os.path.join(img_dir, list_files_batch[i]))
             if img is None:
                 print(list_files_batch[i])
-            if self.datagen is not None and i < 0.5 * len(list_files_batch):
+            if self.datagen is not None and i < 0.6 * len(list_files_batch):
                 img = self.datagen.random_transform(img)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             img = np.reshape(img, (*img.shape, 1))
@@ -69,10 +66,8 @@ class CapchaDataGenerator(keras.utils.Sequence):
 
             label = list_labels_batch[i]
             y.append(text_to_labels(label))
-            y_len.append(len(label))
 
         X = np.array(X, dtype=np.float32)
         X /= 255
-        y = np.array(y, dtype=np.uint8)
-        y_len = np.array(y_len, dtype=np.uint8)
-        return X, y, y_len
+        y = np.array(y, dtype=np.float32)
+        return X, y
