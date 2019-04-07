@@ -17,6 +17,7 @@ base_model_path = './models/weights_for_predict.hdf5'
 tb_log_dir = './tensorboard'  
 
 load_model_path = ''
+# load_model_path = './models/weights.20-0.263-0.270.hdf5' # using pre-trained model
 learning_rate = 0.01
 initial_epoch = 0
 is_training = True
@@ -31,5 +32,5 @@ description_path = './data/train.csv'
 # description_path = './data/private_test.csv'
 
 N_EPOCHS = 30
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 downsample_factor = 4

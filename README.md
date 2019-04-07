@@ -11,7 +11,7 @@
 ### TESTING ### 
   - Run command: ```python3 predict.py```
 ### RESULT ####
-  Data was created by myself and was used for a small competition on Kaggle:
+  Data was created by myself and was used for a research competition on Kaggle:
   https://www.kaggle.com/c/aif-challenge2/
   - Publict test: 91.25%
   - Private test: 78.66%
