@@ -8,7 +8,11 @@ def labels_to_text(labels):
     return ""
 
 def text_to_labels(text):     
-    return [characters.find(c) for c in text]
+    # padding     
+    # index of 'blank' = label_classes - 1
+    return [characters.find(c) for c in text] + [label_classes - 1] * (label_len-len(text))
+    # return [characters.find(c) for c in text]
+
 
 class CapchaDataGenerator(keras.utils.Sequence):
     'Generates data for Keras'
