@@ -89,7 +89,7 @@ print("Done loaded model!")
 y_pred = base_model.predict_generator(testing_generator, max_queue_size=20, verbose=1)
 print(y_pred.shape)
 
-# decode
+# decode multi-process
 start = time.time()
 p = Pool(40)
 label_pred_greedy = p.map(decode_label_greedy, y_pred[:, 2:])
