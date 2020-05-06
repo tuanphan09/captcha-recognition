@@ -10,7 +10,11 @@
   - Run training: ```python3 training.py```
 ### TESTING ### 
   - Choose directory to decode ```img_dir``` and the description ```description_path``` in ```config.py```
-  - Run testing: ```python3 predict.py```
+  - Run testing: ```python3 testing.py```
+### Prediction ### 
+  - Predict text for an image
+  - Run: ```python3 predict.py```
+
 ### RESULT ####
   Data was created by myself and was used for a research competition on Kaggle:
   https://www.kaggle.com/c/aif-challenge2/
