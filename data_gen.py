@@ -63,6 +63,9 @@ class CapchaDataGenerator(keras.utils.Sequence):
             if img is None:
                 print("Cannot read image:", list_files_batch[i])
                 exit()
+            if img.shape[0] != height or img.shape[1] != width:
+                print("{} image shape is not the same as input", list_files_batch[i])
+                exit()
             if self.datagen is not None and i < 0.6 * len(list_files_batch):
                 img = self.datagen.random_transform(img)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
