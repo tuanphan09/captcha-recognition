@@ -23,7 +23,7 @@ config.gpu_options.allow_growth = True
 set_session(tf.Session(config=config))
 
 # using GPU-1 if server have multi-GPUs
-# os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 list_files = [] 
 list_labels = []
@@ -58,7 +58,6 @@ datagen = ImageDataGenerator(
 training_generator = CapchaDataGenerator(X_train, y_train, batch_size=BATCH_SIZE, datagen=datagen, is_testing=False)
 validation_generator = CapchaDataGenerator(X_val, y_val, batch_size=BATCH_SIZE, is_testing=False)
 
-# model, base_model = CRNN_v1_model(is_training=True)
 model, base_model = CRNN_model(is_training=True)
 
 # clipnorm seems to speeds up convergence
@@ -66,7 +65,6 @@ optimizer = SGD(lr=learning_rate, decay=1e-6, momentum=0.8, nesterov=True, clipn
 # optimizer = RMSprop(lr=learning_rate, rho=0.9, epsilon=1e-08, decay=0.0)
 
 model.compile(loss={'ctc': lambda y_true, y_pred: y_pred}, optimizer=optimizer)
-# print a summary representation of your model.
 model.summary()  
 # plot_model(model, to_file='CRNN-CTC-loss.png', show_shapes=True)  # save a image which is the architecture of the model 
 
@@ -90,9 +88,7 @@ if is_training:
         validation_steps=N_TEST_SAMPLES // BATCH_SIZE,
         verbose=1,
         callbacks=[checkpoint],
-        max_queue_size=40,
-        workers=10,
-        use_multiprocessing=True,
+        max_queue_size=40
     )
 
 base_model.save(base_model_path)
