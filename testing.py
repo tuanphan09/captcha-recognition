@@ -53,6 +53,7 @@ def get_label(idxes):
 
 def decode_label_greedy(data):
         idxes = greedy_search_decoder(data)
+        print(idxes)
         return get_label(idxes)
 
 def decode_label_beam(data, top=10):
@@ -69,6 +70,7 @@ def decode_label_beam(data, top=10):
 
 
 # load data
+print("Testing data in {}".format(description_path))
 list_files = [] 
 list_labels = []
 f = open(description_path, "r")
@@ -85,19 +87,30 @@ base_model = CRNN_model(is_training=False)
 base_model.load_weights(base_model_path)
 print("Done loaded model!")
 
+# predict
+y_pred = base_model.predict_generator(testing_generator, max_queue_size=20, verbose=1)
+print(y_pred.shape)
 
-# image example
-img_path = 'data/train/1850b7bd60887ad59144f384ecdcce80.png'
+# decode multi-process
+start = time.time()
+p = Pool(8)
+label_pred_greedy = p.map(decode_label_greedy, y_pred[:, 2:])
+label_pred_beam = p.map(decode_label_beam, y_pred[:, 2:])
+print("Decoding time:", time.time()-start)
 
-img = cv2.imread(img_path)  # (height, width)
-img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) # convert rgb to gray
-img = np.reshape(img, (*img.shape, 1))  # (height, width, 1)
-img = img.transpose([1, 0, 2])    # (width, height, 1)
 
-X = np.array([img], dtype=np.float32)  # X.shape = (number of images, width, height, 1)
-X /= 255  # normalize
+beam = 0
+greedy = 0
+for i in range(len(y_pred)):
+        greedy_label = label_pred_greedy[i]
+        beam_label = label_pred_beam[i]
+        true_label = list_labels[i]
 
-y_pred = base_model.predict(X)  
+        if greedy_label == true_label:
+                greedy += 1
+        if beam_label == true_label:
+                beam += 1
 
-text = decode_label_greedy(y_pred[0, 2:])
-print("Text:", text)
+print("Greed {}, beam {}".format(greedy, beam))
+print("ACC greedy: ", 1.0*greedy/len(y_pred))
+print("ACC beam: ", 1.0*beam/len(y_pred))
