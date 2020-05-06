@@ -61,7 +61,8 @@ class CapchaDataGenerator(keras.utils.Sequence):
         for i in range(len(list_files_batch)):
             img = cv2.imread(os.path.join(img_dir, list_files_batch[i]))
             if img is None:
-                print(list_files_batch[i])
+                print("Cannot read image:", list_files_batch[i])
+                exit()
             if self.datagen is not None and i < 0.6 * len(list_files_batch):
                 img = self.datagen.random_transform(img)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
