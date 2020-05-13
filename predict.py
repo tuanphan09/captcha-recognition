@@ -1,25 +1,15 @@
 import os
 import itertools
 import numpy as np
-import pandas as pd
 import operator
 import math
-from sklearn.model_selection import train_test_split
 from multiprocessing import Pool
 import time
-from keras import backend as K
-from keras.callbacks import *
-from keras.layers import *
-from keras.models import *
-from keras.utils import *
-from keras.optimizers import Adadelta, RMSprop, Adam, SGD
-from keras.callbacks import ModelCheckpoint
-from keras.callbacks import TensorBoard
 
 from config import *
 from model import *
-from data_gen import CapchaDataGenerator
 import cv2 
+
 os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
  
@@ -67,18 +57,6 @@ def decode_label_beam(data, top=10):
         return max(final_result.items(), key=operator.itemgetter(1))[0]
 
 
-
-# load data
-list_files = [] 
-list_labels = []
-f = open(description_path, "r")
-for i, line in enumerate(f):
-    if i > 0:
-        fname, label = line[:-1].split(",")
-        list_files.append(fname)
-        list_labels.append(label)
-
-testing_generator = CapchaDataGenerator(list_files, list_labels, batch_size=BATCH_SIZE, is_testing=True)
 
 # load model
 base_model = CRNN_model(is_training=False)
